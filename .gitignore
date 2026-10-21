@@ -1,0 +1,4 @@
+/mysql-secrets.yaml
+/target/
+/.idea/
+*.iml
