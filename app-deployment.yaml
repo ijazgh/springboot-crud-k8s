@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: springboot-crud-k8s
-          image: springboot-crud-k8s:1.0
+          image: springboot-crud-k8s:boot4-java26
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:   # Setting Enviornmental Variables
@@ -56,4 +57,5 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: NodePort # type of the service.
+
 

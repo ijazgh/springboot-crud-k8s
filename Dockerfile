@@ -1,4 +1,5 @@
-FROM openjdk:8
+FROM eclipse-temurin:26-jdk
+WORKDIR /app
+COPY target/springboot-crud-k8s.jar app.jar
 EXPOSE 8080
-ADD target/springboot-crud-k8s.jar springboot-crud-k8s.jar
-ENTRYPOINT ["java","-jar","/springboot-crud-k8s.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
