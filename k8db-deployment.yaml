@@ -7,6 +7,7 @@ metadata:
     app: mysql
     tier: database
 spec:
+  storageClassName: mysql-ebs-gp3
   accessModes:
     - ReadWriteOnce   #This specifies the mode of the claim that we are trying to create.
   resources:
@@ -22,6 +23,7 @@ metadata:
     app: mysql
     tier: database
 spec:
+  replicas: 1
   selector: # mysql Pod Should contain same labels
     matchLabels:
       app: mysql
@@ -35,7 +37,7 @@ spec:
         tier: database
     spec:
       containers:
-        - image: mysql:latest # image from docker-hub
+        - image: ijazdh/springboot-mysql:8.4.11 # image from docker-hub
 
           name: mysql
           env:
@@ -43,7 +45,7 @@ spec:
               valueFrom :
                 secretKeyRef :
                   name : mysql-secrets
-                  key :  password
+                  key :  root-password
 
             - name: MYSQL_DATABASE # Setting Database Name from a 'ConfigMap'
               valueFrom :
@@ -51,6 +53,27 @@ spec:
                   name : db-config
                   key :  dbName
 
+            - name: MYSQL_USER
+              valueFrom:
+                  secretKeyRef:
+                    name: mysql-secrets
+                    key: username
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                  secretKeyRef:
+                    name: mysql-secrets
+                    key: password
+          startupProbe:
+            tcpSocket:
+              port: 3306
+            periodSeconds: 10
+            failureThreshold: 30
+
+          readinessProbe:
+            tcpSocket:
+                port: 3306
+            periodSeconds: 10
 
           ports:
             - containerPort: 3306
@@ -58,6 +81,7 @@ spec:
           volumeMounts:        # Mounting voulume obtained from Persistent Volume Claim
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql #This is the path in the container on which the mounting will take place.
+              subPath: mysql
       volumes:
         - name: mysql-persistent-storage # Obtaining 'vloume' from PVC
           persistentVolumeClaim:
